@@ -16,6 +16,7 @@ return [
 
     'gemini' => [
         'text_generator_api_url' => env('GEMINI_TEXT_GENERATOR_API_URL'),
+        'image_generator_api_url' => env('GEMINI_IMAGE_GENERATOR_API_URL'),
         'api_key' => env('GEMINI_API_KEY')
     ],
 
