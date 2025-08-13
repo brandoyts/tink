@@ -30,8 +30,8 @@ class ImageGeneratorService extends AiClient implements GeneratorContract {
                         ],
                     ],
                 ],
-                'generateConfig' => [
-                    'responseModalities' => ['TEXT', 'IMAGE']
+                'generationConfig' => [
+                    'responseModalities' => ['IMAGE']
                 ]
             ]
         );

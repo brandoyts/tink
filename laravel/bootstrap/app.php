@@ -3,6 +3,9 @@
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
+use Illuminate\Http\Request;
+use Illuminate\Http\Response;
+use Illuminate\Validation\ValidationException;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -15,5 +18,27 @@ return Application::configure(basePath: dirname(__DIR__))
         //
     })
     ->withExceptions(function (Exceptions $exceptions): void {
-        //
+        $exceptions->shouldRenderJsonWhen(function(Request $request, Throwable $e) {
+            if ($request->is("api/*")) {
+                return true;
+            }
+        });
+
+
+        $exceptions->renderable(function(ValidationException $e, Request $request){
+            if ($request->is("api/*")) {
+                return response()->json([
+                    "message" => "the given data was invalid",
+                    "errors" => $e->errors()
+                ], Response::HTTP_BAD_REQUEST);
+            }
+        });
+
+        $exceptions->renderable(function(Throwable $e, Request $request) {
+            if ($request->is("api/*")) {
+                return response()->json([
+                    "message" => "an unexpected error occured"
+                ],Response::HTTP_INTERNAL_SERVER_ERROR);
+            }
+        });
     })->create();

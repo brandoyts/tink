@@ -13,7 +13,7 @@ class TextGeneratorServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        $this->app->singleton(TextGeneratorService::class, function($app) {
+       $this->app->singleton(TextGeneratorService::class, function($app) {
             return new TextGeneratorService(
                 $app->make(HttpFactory::class), 
                 config("services.gemini.api_key"), 
@@ -30,3 +30,4 @@ class TextGeneratorServiceProvider extends ServiceProvider
         //
     }
 }
+ 
