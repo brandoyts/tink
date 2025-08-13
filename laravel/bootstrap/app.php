@@ -36,8 +36,9 @@ return Application::configure(basePath: dirname(__DIR__))
 
         $exceptions->renderable(function(Throwable $e, Request $request) {
             if ($request->is("api/*")) {
+                report($e);
                 return response()->json([
-                    "message" => "an unexpected error occured"
+                    "message" => "an unexpected error occured",
                 ],Response::HTTP_INTERNAL_SERVER_ERROR);
             }
         });

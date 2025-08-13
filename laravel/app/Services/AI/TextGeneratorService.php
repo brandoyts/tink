@@ -34,6 +34,6 @@ class TextGeneratorService extends AiClient implements GeneratorContract {
 
         $response->throw();
 
-        return $response->json();
+        return data_get($response->json(), 'candidates.0.content.parts.0');
     }
 }
