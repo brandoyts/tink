@@ -2,10 +2,7 @@ import type { Metadata } from "next"
 import { Geist, Geist_Mono } from "next/font/google"
 import "./globals.css"
 import { TextGeneratorStoreProvider } from "@/lib/providers/text-generator-store-provider"
-import {
-  ImageGeneratorStoreContext,
-  ImageGeneratorStoreProvider,
-} from "@/lib/providers/image-generator-store-provider"
+import { ImageGeneratorStoreProvider } from "@/lib/providers/image-generator-store-provider"
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
