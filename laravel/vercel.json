@@ -3,21 +3,25 @@
     "framework": null,
     "functions": {
         "api/index.php": {
-            "runtime": "vercel-php@0.6.0"
+            "runtime": "vercel-php@0.7.3"
         }
     },
     "routes": [
         {
-            "src": "/(css|js|images|fonts|favicon)/(.*)",
-            "dest": "/public/$1/$2"
+            "src": "/api/(.*)",
+            "dest": "/api/api/$1"
         },
         {
-            "src": "/(.*)\\.(.+)$",
-            "dest": "/public/$1.$2"
+            "src": "/ini/(.*)",
+            "dest": "/api/ini/$1"
+        },
+        {
+            "src": "/ext/(.*)",
+            "dest": "/api/ext/$1"
         },
         {
             "src": "/(.*)",
-            "dest": "/api/index.php"
+            "dest": "/api/$1"
         }
     ],
     "env": {
