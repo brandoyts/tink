@@ -30,7 +30,7 @@ export default function Loader({ text }: { text: string }) {
       {text.split("").map((char, i) => (
         <motion.span
           key={i}
-          className="inline-block"
+          className="inline-block text-gray-400"
           initial={animation.initial}
           animate={animation.animate}
           transition={transition(i)}

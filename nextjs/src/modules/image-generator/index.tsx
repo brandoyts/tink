@@ -4,10 +4,10 @@ import React from "react"
 
 import { Textarea } from "@/components/ui/textarea"
 import { ChatContainer } from "@/components/chat-container"
-import { useTextGeneratorStore } from "@/lib/providers/text-generator-store-provider"
+import { useImageGeneratorStore } from "@/lib/providers/image-generator-store-provider"
 import { PromptType } from "@/types/enums"
 
-export default function TextGenerator() {
+export default function ImageGenerator() {
   const {
     loading,
     promptInput,
@@ -15,7 +15,7 @@ export default function TextGenerator() {
     setLoading,
     appendPrompt,
     setPromptInput,
-  } = useTextGeneratorStore((state) => state)
+  } = useImageGeneratorStore((state) => state)
 
   const handleFormSubmit = async (e?: React.FormEvent) => {
     if (e) {
@@ -28,22 +28,27 @@ export default function TextGenerator() {
       return
     }
 
+    if (!promptInput.trim()) {
+      return
+    }
+
     appendPrompt({
       type: PromptType.UserText,
       content: trimmed,
     })
+
     setPromptInput("")
     setLoading(true)
 
     try {
       const response = await fetch(
-        "http://localhost:8000/api/v1/generate-text",
+        "http://localhost:8000/api/v1/generate-image",
         {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ prompt: promptInput }),
+          body: JSON.stringify({ prompt: trimmed }),
         }
       )
 
@@ -54,8 +59,8 @@ export default function TextGenerator() {
       const body = await response.json()
 
       appendPrompt({
-        type: PromptType.AiText,
-        content: body.text,
+        type: PromptType.AiImage,
+        content: body.image_url,
       })
     } catch (e) {
       console.error("error submitting prompt", e)
@@ -70,6 +75,9 @@ export default function TextGenerator() {
 
   const onKeyDown = async (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === "Enter" && !e.shiftKey) {
+      if (loading) {
+        return
+      }
       e.preventDefault()
       await handleFormSubmit()
     }

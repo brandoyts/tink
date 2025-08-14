@@ -6,10 +6,8 @@ use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Http\Client\Response;
 
 beforeEach(function () {
-    // Mock the PendingRequest
     $mockPendingRequest = mock(PendingRequest::class);
 
-    // Mock the POST call on PendingRequest
     $mockPendingRequest->shouldReceive('post')
         ->once()
         ->withArgs(function ($url, $payload) {
@@ -28,14 +26,11 @@ beforeEach(function () {
             )
         ));
 
-    // Mock the HttpFactory
     $mockHttp = mock(HttpFactory::class);
 
-    // Make withHeaders return our PendingRequest mock
     $mockHttp->shouldReceive('withHeaders')
         ->andReturn($mockPendingRequest);
 
-    // Instantiate service with mocked HTTP factory
     $this->service = new TextGeneratorService(
         $mockHttp,
         'secret-api-key',
@@ -45,7 +40,6 @@ beforeEach(function () {
 
 test('it generates text using the API', function () {
     $result = $this->service->generate('this is a prompt');
-
-    expect($result['candidates'][0]['content']['parts'][0]['text'])
+    expect($result["text"])
         ->toBe('Mocked AI response');
 });

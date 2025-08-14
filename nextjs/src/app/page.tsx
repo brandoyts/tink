@@ -6,6 +6,7 @@ import { AuroraBackground } from "@/components/ui/aurora-background"
 import { ServiceType } from "@/types/enums"
 import TextGenerator from "@/modules/text-generator"
 import { motion } from "motion/react"
+import ImageGenerator from "@/modules/image-generator"
 
 export default function Home() {
   return (
@@ -35,13 +36,13 @@ export default function Home() {
           <TabsList className="mb-6 flex flex-wrap justify-center gap-3 bg-white/10 backdrop-blur-lg border border-white/20 rounded-full p-2">
             <TabsTrigger
               value={ServiceType.Text}
-              className="transition-all duration-200 data-[state=active]:bg-white/25 data-[state=active]:backdrop-blur-md rounded-full px-6 py-2 text-sm sm:text-base hover:bg-white/10"
+              className="transition-all duration-200 data-[state=active]:bg-white/25 data-[state=active]:backdrop-blur-md rounded-full px-6 py-2 text-sm sm:text-base hover:bg-white/10 cursor-pointer"
             >
               Text Generator
             </TabsTrigger>
             <TabsTrigger
               value={ServiceType.Image}
-              className="transition-all duration-200 data-[state=active]:bg-white/25 data-[state=active]:backdrop-blur-md rounded-full px-6 py-2 text-sm sm:text-base hover:bg-white/10"
+              className="transition-all duration-200 data-[state=active]:bg-white/25 data-[state=active]:backdrop-blur-md rounded-full px-6 py-2 text-sm sm:text-base hover:bg-white/10 cursor-pointer"
             >
               Image Generator
             </TabsTrigger>
@@ -51,8 +52,11 @@ export default function Home() {
             <TextGenerator />
           </TabsContent>
 
-          <TabsContent value="password" className="text-white/80 text-center">
-            Change your password here.
+          <TabsContent
+            value={ServiceType.Image}
+            className="text-white/80 text-center"
+          >
+            <ImageGenerator />
           </TabsContent>
         </Tabs>
       </motion.div>

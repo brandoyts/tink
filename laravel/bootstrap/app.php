@@ -34,6 +34,14 @@ return Application::configure(basePath: dirname(__DIR__))
             }
         });
 
+        $exceptions->renderable(function(RuntimeException $e, Request $request) {
+            if ($request->is("api/*")) {
+                return response()->json([
+                    "message" => $e->getMessage(),
+                ], Response::HTTP_BAD_REQUEST);
+            }
+        });
+
         $exceptions->renderable(function(Throwable $e, Request $request) {
             if ($request->is("api/*")) {
                 report($e);
