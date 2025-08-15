@@ -1,11 +1,10 @@
 "use client"
 
-import React from "react"
-
-import { Textarea } from "@/components/ui/textarea"
 import { ChatContainer } from "@/components/chat-container"
-import { useTextGeneratorStore } from "@/lib/providers/text-generator-store-provider"
 import { PromptType } from "@/types/enums"
+import React from "react"
+import { Textarea } from "@/components/ui/textarea"
+import { useTextGeneratorStore } from "@/lib/providers/text-generator-store-provider"
 
 export default function TextGenerator() {
   const {
@@ -37,7 +36,7 @@ export default function TextGenerator() {
 
     try {
       const response = await fetch(
-        "http://localhost:8000/api/v1/generate-text",
+        `${process.env.NEXT_PUBLIC_API_BASE_URL}/generate-text`,
         {
           method: "POST",
           headers: {
