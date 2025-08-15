@@ -17,15 +17,6 @@ class PublicImageStorageService implements ImageStorageContract
         'image/webp' => 'webp',
     ];
 
-    // public function store(string $binaryImage, string $mime): string {
-    //     $extension = $this->extensionMap[$mime] ?? $this->defaultMime;
-    //     $fileName  = 'generated/' . Str::uuid() . '.' . $extension;
-
-    //     Storage::disk('public')->put($fileName, $binaryImage);
-
-    //     return asset('storage/' . $fileName);
-    // }
-
     public function store(string $binaryImage, string $mime): string
     {
         $extension = $this->extensionMap[$mime] ?? $this->defaultMime;
@@ -40,7 +31,7 @@ class PublicImageStorageService implements ImageStorageContract
         // Generate public URL
         if ($disk === 'leapcell') {
             // Make sure endpoint does not have trailing slash
-            $endpoint = rtrim(config('filesystems.disks.leapcell.endpoint'), '/');
+            $endpoint = rtrim(config('filesystems.disks.leapcell.cdn'), '/');
             return "{$endpoint}/{$fileName}";
         }
 

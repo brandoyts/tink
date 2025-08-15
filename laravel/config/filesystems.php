@@ -68,6 +68,7 @@ return [
             'bucket' => env('LEAPCELL_BUCKET'),
             'endpoint' => env('LEAPCELL_ENDPOINT'),
             'use_path_style_endpoint' => true,
+            'cdn' => env('LEAPCELL_CDN')
         ],
 
     ],
