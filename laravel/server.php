@@ -14,36 +14,16 @@ if (php_sapi_name() === 'cli-server') {
     return false;
 }
 
-$uri = urldecode(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH) ?? '');
-$publicPath = __DIR__ . '/public';
-$filePath = realpath($publicPath . $uri);
 
-// Serve static files if they exist
-if ($uri !== '/' && $filePath !== false && str_starts_with($filePath, $publicPath) && is_file($filePath)) {
-    header('Content-Type: ' . get_mime_type($filePath) . '; charset=UTF-8');
-    readfile($filePath);
-    exit;
-}
+$uri = urldecode(
+    parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH) ?? ''
+);
 
-// Serve /storage/... only in local development
-if (function_exists('app') && app()->environment('local') && strpos($uri, '/storage/') === 0) {
-    $storagePath = __DIR__ . '/storage/app/public/' . substr($uri, 9); // remove "/storage/"
-    if (file_exists($storagePath)) {
-        header('Content-Type: ' . get_mime_type($storagePath) . '; charset=UTF-8');
-        readfile($storagePath);
-        exit;
-    }
-}
-
-// Fallback to Laravel index.php
-$indexFile = $publicPath . '/index.php';
-if (file_exists($indexFile)) {
-    require_once $indexFile;
+if ($uri !== '/' && file_exists($file = __DIR__ . '/public' . $uri)) {
+    header('Content-type: ' . get_mime_type($file) . '; charset: UTF-8;');
+    echo require $file;
 } else {
-    // Safety: if index.php is missing
-    header($_SERVER['SERVER_PROTOCOL'] . ' 500 Internal Server Error', true, 500);
-    echo 'Laravel index.php not found.';
-    exit;
+    require_once __DIR__ . '/public/index.php';
 }
 
 
