@@ -8,10 +8,6 @@
     ],
     "routes": [
         {
-            "src": "/storage/(.*)",
-            "dest": "/public/storage/$1"
-        },
-        {
             "src": "/api/(.*)",
             "dest": "/server.php"
         },
@@ -20,9 +16,6 @@
             "dest": "/server.php"
         }
     ],
-    "hooks": {
-        "build": "php artisan storage:link && cp -r storage/app/public public/storage"
-    },
     "env": {
         "ASSET_URL": "/",
         "SESSION_DRIVER": "cookie",
