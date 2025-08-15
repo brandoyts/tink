@@ -10,9 +10,9 @@
  */
 
 // Skip Laravel dev server
-if (php_sapi_name() === 'cli-server') {
-    return false;
-}
+// if (php_sapi_name() === 'cli-server') {
+//     return false;
+// }
 
 
 $uri = urldecode(
