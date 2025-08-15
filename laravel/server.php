@@ -3,29 +3,30 @@
 /**
  * Serverless function entry for Vercel + Laravel
  *
+ * - Skips when running "php artisan serve"
  * - Serves static files from /public
  * - Serves /storage/... only in local development
- * - Fallback to Laravel's index.php
+ * - Fallback to Laravel's index.php for all other routes
  */
 
-// Detect Laravel's built-in dev server (php artisan serve)
+// Skip Laravel dev server
 if (php_sapi_name() === 'cli-server') {
-    return false; // Let the built-in server handle the request
+    return false;
 }
 
 $uri = urldecode(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH) ?? '');
 $publicPath = __DIR__ . '/public';
-$filePath = $publicPath . $uri;
+$filePath = realpath($publicPath . $uri);
 
 // Serve static files if they exist
-if ($uri !== '/' && file_exists($filePath) && is_file($filePath)) {
+if ($uri !== '/' && $filePath !== false && str_starts_with($filePath, $publicPath) && is_file($filePath)) {
     header('Content-Type: ' . get_mime_type($filePath) . '; charset=UTF-8');
     readfile($filePath);
     exit;
 }
 
 // Serve /storage/... only in local development
-if (app()->environment('local') && strpos($uri, '/storage/') === 0) {
+if (function_exists('app') && app()->environment('local') && strpos($uri, '/storage/') === 0) {
     $storagePath = __DIR__ . '/storage/app/public/' . substr($uri, 9); // remove "/storage/"
     if (file_exists($storagePath)) {
         header('Content-Type: ' . get_mime_type($storagePath) . '; charset=UTF-8');
@@ -35,7 +36,15 @@ if (app()->environment('local') && strpos($uri, '/storage/') === 0) {
 }
 
 // Fallback to Laravel index.php
-require_once $publicPath . '/index.php';
+$indexFile = $publicPath . '/index.php';
+if (file_exists($indexFile)) {
+    require_once $indexFile;
+} else {
+    // Safety: if index.php is missing
+    header($_SERVER['SERVER_PROTOCOL'] . ' 500 Internal Server Error', true, 500);
+    echo 'Laravel index.php not found.';
+    exit;
+}
 
 
 /**
