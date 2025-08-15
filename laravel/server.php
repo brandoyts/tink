@@ -1,26 +1,25 @@
 <?php
 
 /**
- * Custom server router for Vercel + Laravel
+ * Serverless function entry for Vercel + Laravel
  *
- * - Skips when running "php artisan serve"
- * - Serves static files (CSS, JS, images) directly
+ * - Serves static files from /public
  * - Serves /storage/... only in local development
- * - Fallback to Laravel's index.php for all other routes
+ * - Fallback to Laravel's index.php
  */
 
-// Skip Laravel dev server
+// Detect Laravel's built-in dev server (php artisan serve)
 if (php_sapi_name() === 'cli-server') {
-    return false;
+    return false; // Let the built-in server handle the request
 }
 
 $uri = urldecode(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH) ?? '');
 $publicPath = __DIR__ . '/public';
-$filePath = realpath($publicPath . $uri);
+$filePath = $publicPath . $uri;
 
 // Serve static files if they exist
-if ($filePath !== false && str_starts_with($filePath, $publicPath) && is_file($filePath)) {
-    header('Content-Type: ' . get_mime_type($filePath));
+if ($uri !== '/' && file_exists($filePath) && is_file($filePath)) {
+    header('Content-Type: ' . get_mime_type($filePath) . '; charset=UTF-8');
     readfile($filePath);
     exit;
 }
@@ -29,7 +28,7 @@ if ($filePath !== false && str_starts_with($filePath, $publicPath) && is_file($f
 if (app()->environment('local') && strpos($uri, '/storage/') === 0) {
     $storagePath = __DIR__ . '/storage/app/public/' . substr($uri, 9); // remove "/storage/"
     if (file_exists($storagePath)) {
-        header('Content-Type: ' . get_mime_type($storagePath));
+        header('Content-Type: ' . get_mime_type($storagePath) . '; charset=UTF-8');
         readfile($storagePath);
         exit;
     }
@@ -37,6 +36,7 @@ if (app()->environment('local') && strpos($uri, '/storage/') === 0) {
 
 // Fallback to Laravel index.php
 require_once $publicPath . '/index.php';
+
 
 /**
  * Get MIME type by file extension
@@ -53,6 +53,7 @@ function get_mime_type($filename)
         'js' => 'application/javascript',
         'json' => 'application/json',
         'xml' => 'application/xml',
+        // images
         'png' => 'image/png',
         'jpe' => 'image/jpeg',
         'jpeg' => 'image/jpeg',
@@ -65,11 +66,14 @@ function get_mime_type($filename)
         'tif' => 'image/tiff',
         'svg' => 'image/svg+xml',
         'svgz' => 'image/svg+xml',
+        // archives
         'zip' => 'application/zip',
         'rar' => 'application/x-rar-compressed',
+        // audio/video
         'mp3' => 'audio/mpeg',
         'qt' => 'video/quicktime',
         'mov' => 'video/quicktime',
+        // fonts
         'ttf' => 'application/x-font-ttf',
         'woff' => 'application/x-woff',
         'woff2' => 'font/woff2',
