@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google"
 import "./globals.css"
 import { TextGeneratorStoreProvider } from "@/lib/providers/text-generator-store-provider"
 import { ImageGeneratorStoreProvider } from "@/lib/providers/image-generator-store-provider"
+import { Analytics } from "@vercel/analytics/next"
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -32,6 +33,7 @@ export default function RootLayout({
         <TextGeneratorStoreProvider>
           <ImageGeneratorStoreProvider>{children}</ImageGeneratorStoreProvider>
         </TextGeneratorStoreProvider>
+        <Analytics />
       </body>
     </html>
   )
