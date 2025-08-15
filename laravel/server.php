@@ -1,28 +1,53 @@
 <?php
 
 /**
- * Here is the serverless function entry
- * for deployment with Vercel.
+ * Custom server router for Vercel + Laravel
+ * 
+ * - Skips when running "php artisan serve"
+ * - Serves static files (CSS, JS, images) directly
+ * - Special handling for /storage/... to read from storage/app/public if no symlink exists
+ * - Fallback to Laravel's index.php for routes
  */
 
-$uri = urldecode(
-    parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH) ?? ''
-);
-
-if ($uri !== '/' && file_exists($file = __DIR__.'/public'.$uri)) {
-    header('Content-type: '.get_mime_type($file).'; charset: UTF-8;');
-    echo require $file;
-} else {
-    require_once __DIR__.'/public/index.php';
+// Detect Laravel's built-in dev server (php artisan serve)
+if (php_sapi_name() === 'cli-server') {
+    return false; // Let the built-in server handle the request
 }
 
+$uri = urldecode(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH) ?? '');
+$publicPath = __DIR__ . '/public';
+
+// If the request matches an existing public file, serve it
+$filePath = $publicPath . $uri;
+
+// Special case: Handle /storage/... when symlink doesn't exist
+if (strpos($uri, '/storage/') === 0 && !file_exists($filePath)) {
+    $storagePath = __DIR__ . '/storage/app/public/' . substr($uri, 9); // remove "/storage/"
+    if (file_exists($storagePath)) {
+        header('Content-Type: ' . get_mime_type($storagePath));
+        readfile($storagePath);
+        exit;
+    }
+}
+
+if ($uri !== '/' && file_exists($filePath)) {
+    header('Content-Type: ' . get_mime_type($filePath));
+    readfile($filePath);
+    exit;
+}
+
+// Fallback to Laravel
+require_once $publicPath . '/index.php';
 
 
+/**
+ * Get MIME type by file extension
+ */
+function get_mime_type($filename)
+{
+    $extension = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
 
-function get_mime_type($filename) {
-    $extension = strtolower(pathinfo($filename)['extension']);
-
-    $mimes = array(
+    $mimes = [
         'txt' => 'text/plain',
         'html' => 'text/html',
         'php' => 'text/html',
@@ -55,10 +80,7 @@ function get_mime_type($filename) {
         'woff' => 'application/x-woff',
         'woff2' => 'font/woff2',
         'otf' => 'font/otf',
-    );
+    ];
 
-    if (isset($mimes[$extension])) {
-        return $mimes[$extension];
-    }
-    return 'application/octet-stream';
+    return $mimes[$extension] ?? 'application/octet-stream';
 }
