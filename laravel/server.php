@@ -2,26 +2,31 @@
 
 /**
  * Custom server router for Vercel + Laravel
- * 
+ *
  * - Skips when running "php artisan serve"
  * - Serves static files (CSS, JS, images) directly
- * - Special handling for /storage/... to read from storage/app/public if no symlink exists
- * - Fallback to Laravel's index.php for routes
+ * - Serves /storage/... only in local development
+ * - Fallback to Laravel's index.php for all other routes
  */
 
-// Detect Laravel's built-in dev server (php artisan serve)
+// Skip Laravel dev server
 if (php_sapi_name() === 'cli-server') {
-    return false; // Let the built-in server handle the request
+    return false;
 }
 
 $uri = urldecode(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH) ?? '');
 $publicPath = __DIR__ . '/public';
+$filePath = realpath($publicPath . $uri);
 
-// If the request matches an existing public file, serve it
-$filePath = $publicPath . $uri;
+// Serve static files if they exist
+if ($filePath !== false && str_starts_with($filePath, $publicPath) && is_file($filePath)) {
+    header('Content-Type: ' . get_mime_type($filePath));
+    readfile($filePath);
+    exit;
+}
 
-// Special case: Handle /storage/... when symlink doesn't exist
-if (strpos($uri, '/storage/') === 0 && !file_exists($filePath)) {
+// Serve /storage/... only in local development
+if (app()->environment('local') && strpos($uri, '/storage/') === 0) {
     $storagePath = __DIR__ . '/storage/app/public/' . substr($uri, 9); // remove "/storage/"
     if (file_exists($storagePath)) {
         header('Content-Type: ' . get_mime_type($storagePath));
@@ -30,15 +35,8 @@ if (strpos($uri, '/storage/') === 0 && !file_exists($filePath)) {
     }
 }
 
-if ($uri !== '/' && file_exists($filePath)) {
-    header('Content-Type: ' . get_mime_type($filePath));
-    readfile($filePath);
-    exit;
-}
-
-// Fallback to Laravel
+// Fallback to Laravel index.php
 require_once $publicPath . '/index.php';
-
 
 /**
  * Get MIME type by file extension
@@ -55,7 +53,6 @@ function get_mime_type($filename)
         'js' => 'application/javascript',
         'json' => 'application/json',
         'xml' => 'application/xml',
-        // images
         'png' => 'image/png',
         'jpe' => 'image/jpeg',
         'jpeg' => 'image/jpeg',
@@ -68,14 +65,11 @@ function get_mime_type($filename)
         'tif' => 'image/tiff',
         'svg' => 'image/svg+xml',
         'svgz' => 'image/svg+xml',
-        // archives
         'zip' => 'application/zip',
         'rar' => 'application/x-rar-compressed',
-        // audio/video
         'mp3' => 'audio/mpeg',
         'qt' => 'video/quicktime',
         'mov' => 'video/quicktime',
-        // fonts
         'ttf' => 'application/x-font-ttf',
         'woff' => 'application/x-woff',
         'woff2' => 'font/woff2',
