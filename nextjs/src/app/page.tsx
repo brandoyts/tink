@@ -19,7 +19,7 @@ export default function Home() {
           duration: 0.8,
           ease: "easeInOut",
         }}
-        className="relative flex flex-col gap-6 md:gap-10 items-center justify-center px-4 sm:px-6 lg:px-8 py-10 w-full max-w-5xl mx-auto h-full"
+        className="relative flex flex-col gap-6 md:gap-10 items-center justify-center px-4 sm:px-6 lg:px-8 py-10 w-full max-w-5xl mx-auto h-screen"
       >
         {/* Title */}
         <h1 className="text-4xl sm:text-5xl md:text-7xl font-bold text-white drop-shadow-lg tracking-wide text-center">
